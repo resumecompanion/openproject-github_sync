@@ -27,19 +27,15 @@ class GithubIssueController < ApplicationController
       package.save
     elsif action == 'closed'
       package = CustomValue.where(value: '129', custom_field_id: 5).first.customized
-      package.status = Status.where(name: 'Closed', is_closed: true).first
+      package.status = Status.where(name: 'Tested', is_closed: true).first
       package.save
       puts package.errors.inspect
     elsif action == 'labeled'
       package = CustomValue.where(value: '129', custom_field_id: 5).first.customized
-      puts "HERE NOW"
 
       labels = params[:issue][:labels].collect { |label| label[:name] }
-puts labels.inspect
       status_id = STATUS_MAP.select { |key, _| labels.include?(key) }.values.first
-puts status_id.inspect
       unless status_id.nil?
-        puts "HERE NOW"
         puts status_id.inspect
         puts Status.find(status_id).inspect
         package.status_id = status_id
