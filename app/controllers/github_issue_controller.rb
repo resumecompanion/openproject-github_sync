@@ -14,14 +14,20 @@ class GithubIssueController < ApplicationController
     title = params[:issue][:title]
     github_number = params[:issue][:number]
     body = params[:issue][:body]
-
+puts "START"
+puts action.inspect
     if action == 'opened'
       package = project.work_packages.new
 
       package.subject = title
       package.description = body + "\n\n Created by Github User: #{params[:issue][:user][:login]}"
       package.author = User.first
-      package.type = Type.where(name: 'Bug').first
+      type = Type.where(name: 'Story').first
+
+      if (params[:issue][:labels] || []).collect { |label| label[:name] }.include?('bug')
+        type = Type.where(name: 'Bug').first
+      end
+      package.type = type
       custom_field_key = Rails.env.production? ? '1' : '5'
       package.custom_field_values= { custom_field_key => github_number.to_s }
       package.save
